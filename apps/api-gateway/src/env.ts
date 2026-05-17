@@ -1,0 +1,34 @@
+import "dotenv/config";
+import { z } from "zod";
+
+const csvUrls = z
+  .string()
+  .min(1)
+  .transform((s) =>
+    s
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean),
+  )
+  .pipe(z.array(z.url()).min(1));
+
+const envSchema = z.object({
+  PORT: z.coerce.number().int().positive().default(3000),
+  BIND_ADDRESS: z.string().min(1).default("0.0.0.0"),
+  IDENTITY_SERVICE_URL: z.url(),
+  BOARDS_SERVICE_URL: z.url(),
+  TRUSTED_ORIGINS: csvUrls,
+});
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  console.error(
+    "[env] Invalid environment variables:\n",
+    JSON.stringify(z.treeifyError(parsed.error), null, 2),
+  );
+  process.exit(1);
+}
+
+export const env = Object.freeze(parsed.data);
+export type Env = typeof env;
