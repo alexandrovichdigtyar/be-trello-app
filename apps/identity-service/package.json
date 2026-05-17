@@ -1,5 +1,5 @@
 {
-  "name": "@trello-app/api-gateway",
+  "name": "@trello-app/identity-service",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -7,21 +7,28 @@
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@fastify/cors": "^11.2.0",
-    "@fastify/http-proxy": "^11.4.4",
     "@nestjs/common": "^11.1.19",
     "@nestjs/core": "^11.1.19",
     "@nestjs/platform-fastify": "^11.1.19",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@thallesp/nestjs-better-auth": "^2.6.0",
+    "@trello-app/shared": "workspace:*",
+    "better-auth": "^1.6.10",
     "fastify": "^5.8.5",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@trello-app/typescript-config": "workspace:*",
-    "dotenv": "^17.4.2"
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0"
   }
 }

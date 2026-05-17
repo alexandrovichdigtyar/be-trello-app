@@ -1,32 +1,59 @@
 import { HttpStatus } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { auth } from "../auth";
-import { toFetchHeaders } from "./headers.util";
+import { env } from "../env";
 import { IDENTITY_HEADERS, IdentityHeader } from "./identity-headers";
-import { AUTH_SCHEME, PROXY_ERRORS } from "./proxy.constants";
+import { AUTH_API_PREFIX, AUTH_SCHEME, PROXY_ERRORS } from "./proxy.constants";
 
-export async function identityPreHandler(
-  request: FastifyRequest,
-  reply: FastifyReply,
-): Promise<void> {
+export function stripIncomingIdentityHeaders(request: FastifyRequest): void {
   for (const header of IDENTITY_HEADERS) {
     delete request.headers[header];
   }
+}
 
-  const headers = toFetchHeaders(request.headers);
+export async function authRoutesStripPreHandler(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  stripIncomingIdentityHeaders(request);
+}
 
-  const session = await auth.api.getSession({ headers });
+export async function boardsIdentityPreHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  stripIncomingIdentityHeaders(request);
 
-  if (!session) {
+  const rawCookie = request.headers.cookie;
+  const cookieHeader = Array.isArray(rawCookie) ? rawCookie.join("; ") : rawCookie;
+
+  if (!cookieHeader?.length) {
     reply
       .code(HttpStatus.UNAUTHORIZED)
       .send({ error: PROXY_ERRORS.UNAUTHORIZED });
     return;
   }
 
-  const token = await auth.api.getToken({ headers });
+  const tokenUrl = new URL(`${AUTH_API_PREFIX}/token`, env.IDENTITY_SERVICE_URL);
+  const tokenRes = await fetch(tokenUrl, {
+    headers: { cookie: cookieHeader },
+  });
 
-  if (!token?.token) {
+  if (tokenRes.status === HttpStatus.UNAUTHORIZED) {
+    reply
+      .code(HttpStatus.UNAUTHORIZED)
+      .send({ error: PROXY_ERRORS.UNAUTHORIZED });
+    return;
+  }
+
+  if (!tokenRes.ok) {
+    reply
+      .code(HttpStatus.INTERNAL_SERVER_ERROR)
+      .send({ error: PROXY_ERRORS.TOKEN_MINT_FAILED });
+    return;
+  }
+
+  const body = (await tokenRes.json()) as { token?: string };
+  if (!body?.token) {
     reply
       .code(HttpStatus.INTERNAL_SERVER_ERROR)
       .send({ error: PROXY_ERRORS.TOKEN_MINT_FAILED });
@@ -34,5 +61,5 @@ export async function identityPreHandler(
   }
 
   request.headers[IdentityHeader.Authorization] =
-    `${AUTH_SCHEME} ${token.token}`;
+    `${AUTH_SCHEME} ${body.token}`;
 }

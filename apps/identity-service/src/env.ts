@@ -13,11 +13,13 @@ const csvUrls = z
   .pipe(z.array(z.url()).min(1));
 
 const envSchema = z.object({
-  PORT: z.coerce.number().int().positive().default(3000),
+  PORT: z.coerce.number().int().positive().default(4002),
   BIND_ADDRESS: z.string().min(1).default("0.0.0.0"),
-  IDENTITY_SERVICE_URL: z.url(),
-  BOARDS_SERVICE_URL: z.url(),
+  DATABASE_URL: z.url(),
   TRUSTED_ORIGINS: csvUrls,
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
+  BETTER_AUTH_SECRET: z.string().min(32).optional(),
+  BETTER_AUTH_URL: z.url().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

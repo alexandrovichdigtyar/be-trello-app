@@ -3,6 +3,13 @@ export const BOARDS_PROXY = {
   rewritePrefix: "/boards",
 } as const;
 
+export const AUTH_API_PREFIX = "/api/auth";
+
+export const ME_PROXY = {
+  prefix: "/me",
+  rewritePrefix: "/me",
+} as const;
+
 export const AUTH_SCHEME = "Bearer";
 
 export const PROXY_ERRORS = {

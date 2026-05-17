@@ -12,7 +12,11 @@ NestJS microservices monorepo on Turborepo + pnpm workspaces.
 
 ```
 trello-app/
-├── apps/                       # NestJS microservices (gateway, users, boards, ...)
+├── apps/                       # NestJS microservices
+│   ├── api-gateway/            # reverse proxy + CORS; no DB
+│   ├── identity-service/       # better-auth, users/orgs/JWT (Postgres + Prisma)
+│   ├── boards-service/         # example downstream
+│   └── ...
 ├── packages/
 │   ├── typescript-config/      # shared tsconfig (base.json, nestjs.json)
 │   └── shared/                 # shared DTOs / contracts / types
