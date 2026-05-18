@@ -1,40 +1,37 @@
 # trello-app
 
-NestJS microservices monorepo on Turborepo + pnpm workspaces.
+pnpm workspaces + Turborepo. Identity is the first app; add more under `apps/` as needed.
 
-## Stack
-
-- [pnpm](https://pnpm.io) — package manager (workspaces)
-- [Turborepo](https://turborepo.com) — build orchestrator with caching
-- [TypeScript](https://www.typescriptlang.org)
-
-## Structure
+## Layout
 
 ```
 trello-app/
-├── apps/                       # NestJS microservices (gateway, users, boards, ...)
+├── apps/
+│   └── identity-service/     # NestJS — implement auth here
 ├── packages/
-│   ├── typescript-config/      # shared tsconfig (base.json, nestjs.json)
-│   └── shared/                 # shared DTOs / contracts / types
+│   ├── typescript-config/    # shared tsconfig (base + nestjs)
+│   └── shared/               # shared types / contracts
+├── package.json
 ├── pnpm-workspace.yaml
-├── turbo.json
-└── package.json
+└── turbo.json
 ```
 
-## Getting started
+## Commands
 
 ```bash
 pnpm install
-pnpm build
-pnpm dev
+pnpm build                 # turbo: shared → identity-service
+pnpm dev:identity          # nest start --watch for identity-service
+pnpm lint                  # eslint via turbo (packages with lint script)
+pnpm lint:fix              # eslint --fix
+pnpm format                # prettier --write
+pnpm format:check          # prettier --check
 ```
 
-## Adding a NestJS microservice
+Identity listens on `http://0.0.0.0:4002` by default (`PORT`, `BIND_ADDRESS`).
 
-```bash
-cd apps
-nest new gateway --strict --package-manager pnpm
-# then in apps/gateway/package.json rename to @trello-app/gateway,
-# extend tsconfig from @trello-app/typescript-config/nestjs.json
-# and add "@trello-app/shared": "workspace:*" if needed
-```
+## New workspace package
+
+1. Add folder under `apps/` or `packages/` with its own `package.json`.
+2. Use `"@trello-app/foo": "workspace:*"` for internal deps.
+3. Run `pnpm install` from the root.

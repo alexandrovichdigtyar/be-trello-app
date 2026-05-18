@@ -1,0 +1,7 @@
+export const DEFAULT_PORT = 4002;
+
+export const DEFAULT_BIND_ADDRESS = '0.0.0.0';
+
+export const CORS_PREFLIGHT_MAX_AGE_SECONDS = 600;
+
+export const HTTP_STATUS_UNAUTHORIZED = 401;
