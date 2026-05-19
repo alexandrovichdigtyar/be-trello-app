@@ -5,6 +5,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev:identity": "turbo run dev --filter=@trello-app/identity-service",
+    "dev:gateway": "turbo run dev --filter=@trello-app/api-gateway",
+    "dev-gateway": "turbo run dev --filter=@trello-app/api-gateway",
+    "dev:boards": "turbo run dev --filter=@trello-app/boards-service",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"**/*.{ts,mts,cts,js,mjs,cjs,json,md}\"",

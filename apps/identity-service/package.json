@@ -11,6 +11,7 @@
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },
   "dependencies": {
+    "@trello-app/shared": "workspace:*",
     "@better-auth/prisma-adapter": "^1.6.11",
     "@hono/node-server": "^2.0.2",
     "@prisma/adapter-pg": "^7.8.0",
