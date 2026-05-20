@@ -4,7 +4,9 @@ import {
   GuestOnlyGuardDefaults,
   IdentityPaths,
   JwtVerificationDefaults,
+  CorsDefaults,
 } from './config/defaults';
+import { parseCorsOrigins } from './cors/register-cors';
 
 export type GatewayEnv = {
   port: number;
@@ -17,6 +19,8 @@ export type GatewayEnv = {
   jwtJwksCacheMaxAgeMs: number;
   jwtClockToleranceSeconds: number;
   sessionCheckTimeoutMs: number;
+  corsOrigins: readonly string[];
+  corsPreflightMaxAgeSeconds: number;
 };
 
 function trimTrailingSlashes(url: string): string {
@@ -57,6 +61,10 @@ export function loadGatewayEnv(): GatewayEnv {
     sessionCheckTimeoutMs:
       parsePositiveInt(process.env.SESSION_CHECK_TIMEOUT_MS) ??
       GuestOnlyGuardDefaults.sessionCheckTimeoutMs,
+    corsOrigins: parseCorsOrigins(process.env.CORS_ORIGINS),
+    corsPreflightMaxAgeSeconds:
+      parsePositiveInt(process.env.CORS_PREFLIGHT_MAX_AGE_SECONDS) ??
+      CorsDefaults.preflightMaxAgeSeconds,
   };
 }
 

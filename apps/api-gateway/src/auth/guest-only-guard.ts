@@ -1,11 +1,11 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { GUEST_ONLY_PATHS, IdentityUpstreamPaths } from '../proxy/proxy.constants';
 
 async function hasActiveSession(
   identityUpstreamUrl: string,
   cookie: string,
   timeoutMs: number,
-  log: FastifyInstance['log'],
+  log: FastifyRequest['log'],
 ): Promise<boolean> {
   const url = `${identityUpstreamUrl}${IdentityUpstreamPaths.usersMe}`;
   try {
@@ -21,12 +21,14 @@ async function hasActiveSession(
   }
 }
 
-export function registerGuestOnlyGuard(
-  fastify: FastifyInstance,
+export function createGuestOnlyPreHandler(
   identityUpstreamUrl: string,
   sessionCheckTimeoutMs: number,
-): void {
-  fastify.addHook('preHandler', async (request, reply) => {
+) {
+  return async function guestOnlyPreHandler(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<void> {
     if (request.method !== 'POST') return;
 
     const path = request.url.split('?')[0] ?? request.url;
@@ -39,7 +41,7 @@ export function registerGuestOnlyGuard(
       identityUpstreamUrl,
       Array.isArray(cookie) ? cookie.join('; ') : cookie,
       sessionCheckTimeoutMs,
-      fastify.log,
+      request.log,
     );
 
     if (active) {
@@ -48,5 +50,5 @@ export function registerGuestOnlyGuard(
         message: 'You are already signed in. Sign out first.',
       });
     }
-  });
+  };
 }

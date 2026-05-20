@@ -1,28 +1,15 @@
 import 'dotenv/config';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
-import { auth, trustedOrigins } from './auth';
+import { auth } from './auth';
 import { apiPrefix, authMountPath } from './config/api';
 import {
-  CORS_PREFLIGHT_MAX_AGE_SECONDS,
   DEFAULT_BIND_ADDRESS,
   DEFAULT_PORT,
   HTTP_STATUS_UNAUTHORIZED,
 } from './config/defaults';
 
 const app = new Hono();
-
-app.use(
-  '*',
-  cors({
-    origin: trustedOrigins,
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-    maxAge: CORS_PREFLIGHT_MAX_AGE_SECONDS,
-  }),
-);
 
 app.on(['POST', 'GET'], `${authMountPath}/*`, (c) => auth.handler(c.req.raw));
 

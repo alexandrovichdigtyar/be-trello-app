@@ -30,8 +30,6 @@ export function stripIncomingIdentityHeaders(request: FastifyRequest): void {
   for (const header of IDENTITY_HEADERS) {
     delete request.headers[header];
   }
-
-  delete request.headers.forwarded;
 }
 
 export function registerAuthPreHandler(fastify: FastifyInstance): void {
