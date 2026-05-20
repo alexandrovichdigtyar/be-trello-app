@@ -5,30 +5,29 @@ import {
   type JWTVerifyGetKey,
   type JWTVerifyOptions,
 } from 'jose';
+import { getGatewayEnv } from '../env';
 
 let jwks: JWTVerifyGetKey | undefined;
 
 function getJwks(): JWTVerifyGetKey {
   if (!jwks) {
-    const jwksUri =
-      process.env.JWKS_URL?.trim() ??
-      'http://localhost:4002/api/v1/auth/jwks';
-    jwks = createRemoteJWKSet(new URL(jwksUri), {
-      cacheMaxAge: 60 * 60 * 1000,
+    const env = getGatewayEnv();
+    jwks = createRemoteJWKSet(new URL(env.jwksUrl), {
+      cacheMaxAge: env.jwtJwksCacheMaxAgeMs,
     });
   }
   return jwks;
 }
 
 export async function verifyTokenWithJwks(token: string): Promise<JWTPayload> {
+  const env = getGatewayEnv();
+
   const verifyOptions: JWTVerifyOptions = {
-    clockTolerance: 30,
+    clockTolerance: env.jwtClockToleranceSeconds,
   };
-  const issuer = process.env.JWT_ISSUER?.trim();
-  const audience = process.env.JWT_AUDIENCE?.trim();
-  
-  if (issuer) verifyOptions.issuer = issuer;
-  if (audience) verifyOptions.audience = audience;
+
+  if (env.jwtIssuer) verifyOptions.issuer = env.jwtIssuer;
+  if (env.jwtAudience) verifyOptions.audience = env.jwtAudience;
 
   const { payload } = await jwtVerify(token.trim(), getJwks(), verifyOptions);
   return payload;

@@ -7,7 +7,6 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { jwt } from 'better-auth/plugins';
 import { getAuthBaseUrl } from '../config/api';
 import { createDefineJwtPayload } from './define-jwt-payload';
-import type { DefinePayloadInput } from '@trello-app/shared';
 
 const statement = {
   project: ['create', 'share', 'update', 'delete'],
@@ -37,17 +36,27 @@ export const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(',')
 export const roles = { editor, admin };
 export type RoleName = keyof typeof roles;
 
+function isConfiguredRole(name: string): name is RoleName {
+  return Object.hasOwn(roles, name);
+}
+
 export function permsForRoles(roleNames: string[]): string[] {
   const seen = new Set<string>();
+
   for (const roleName of roleNames) {
-    const role = roles[roleName as RoleName];
-    if (!role) continue;
-    for (const [resource, actions] of Object.entries(role.statements)) {
-      for (const action of actions as readonly string[]) {
-        seen.add(`${resource}:${action}`);
+    if (!isConfiguredRole(roleName)) continue;
+
+    const statements = roles[roleName].statements;
+    for (const resource of Object.keys(statements)) {
+      const key = resource as keyof typeof statements;
+      const actions = statements[key];
+      if (!actions) continue;
+      for (const action of actions) {
+        seen.add(`${String(key)}:${action}`);
       }
     }
   }
+
   return Array.from(seen);
 }
 

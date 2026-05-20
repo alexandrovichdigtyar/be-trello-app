@@ -4,6 +4,7 @@
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "build": "turbo run build",
+    "dev": "turbo run dev --filter=@trello-app/api-gateway --filter=@trello-app/identity-service --filter=@trello-app/boards-service",
     "dev:identity": "turbo run dev --filter=@trello-app/identity-service",
     "dev:gateway": "turbo run dev --filter=@trello-app/api-gateway",
     "dev-gateway": "turbo run dev --filter=@trello-app/api-gateway",

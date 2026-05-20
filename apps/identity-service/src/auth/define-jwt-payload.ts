@@ -1,29 +1,11 @@
-import { ROLE_DELIMITER, type DefinePayloadInput, type IdentityClaims } from '@trello-app/shared';
+import { ROLE_DELIMITER, type IdentityClaims } from '@trello-app/shared';
+import type { Session, User } from 'better-auth/types';
 import type { PrismaClient } from '../generated/prisma/client';
 
-async function resolveActiveOrganizationId(
-  prisma: PrismaClient,
-  userId: string,
-  session: DefinePayloadInput['session'],
-): Promise<string | null> {
-  const fromDb =
-    (await prisma.session.findFirst({
-      where: {
-        userId,
-        activeOrganizationId: { not: null },
-      },
-      orderBy: { updatedAt: 'desc' },
-      select: { activeOrganizationId: true },
-    })) ??
-    (await prisma.session.findFirst({
-      where: { userId },
-      orderBy: { updatedAt: 'desc' },
-      select: { activeOrganizationId: true },
-    }));
-
-  const raw = fromDb?.activeOrganizationId ?? session.activeOrganizationId;
-  return typeof raw === 'string' && raw.length > 0 ? raw : null;
-}
+export type DefineJwtPayloadInput = {
+  user: User;
+  session: Session & { activeOrganizationId?: string | null };
+};
 
 export function createDefineJwtPayload(
   prisma: PrismaClient,
@@ -32,8 +14,8 @@ export function createDefineJwtPayload(
   return async function defineJwtPayload({
     user,
     session,
-  }: DefinePayloadInput): Promise<IdentityClaims> {
-    const activeOrganizationId = await resolveActiveOrganizationId(prisma, user.id, session);
+  }: DefineJwtPayloadInput): Promise<IdentityClaims> {
+    const activeOrganizationId = session.activeOrganizationId ?? null;
 
     const payload: IdentityClaims = {
       userId: user.id,

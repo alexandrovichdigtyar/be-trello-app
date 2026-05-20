@@ -12,8 +12,3 @@ export type IdentityClaims = {
   perms: string[];
 };
 
-/** Минимальный ввод для сборки JWT payload (совместимо с better-auth `definePayload`). */
-export type DefinePayloadInput = {
-  user: { id: string };
-  session: { activeOrganizationId?: string | null };
-};

@@ -18,14 +18,12 @@
     "dotenv": "^17.4.2",
     "fastify": "^5.8.5",
     "jose": "^6.2.3",
-    "jsonwebtoken": "^9.0.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.7",
     "@trello-app/typescript-config": "workspace:*",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.19.19",
     "eslint": "^9.27.0",
     "typescript": "~5.8.3"
