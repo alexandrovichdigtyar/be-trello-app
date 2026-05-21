@@ -4,13 +4,12 @@ import { AppModule } from './app.module';
 import { registerCors } from './cors/register-cors';
 import { CorsDefaults } from './config/defaults';
 import { getGatewayEnv } from './env';
-import { registerAuthPreHandler } from './auth/register-auth-pre-handler';
+import { registerStripUntrustedHeaders } from './auth/register-auth-pre-handler';
 import { registerHttpProxies } from './proxy/proxy.bootstrap';
 
 export type CreateGatewayAppOptions = {
   identityUpstreamUrl?: string;
   boardsUpstreamUrl?: string;
-  sessionCheckTimeoutMs?: number;
   corsOrigins?: readonly string[];
   corsPreflightMaxAgeSeconds?: number;
 };
@@ -34,12 +33,10 @@ export async function createGatewayApplication(
 
   const fastify = app.getHttpAdapter().getInstance();
 
-  registerAuthPreHandler(fastify);
+  registerStripUntrustedHeaders(fastify);
   await registerHttpProxies(fastify, {
     identityUpstreamUrl: options.identityUpstreamUrl ?? env.identityUpstreamUrl,
     boardsUpstreamUrl: options.boardsUpstreamUrl ?? env.boardsUpstreamUrl,
-    sessionCheckTimeoutMs:
-      options.sessionCheckTimeoutMs ?? env.sessionCheckTimeoutMs,
   });
 
   await app.init();
@@ -49,5 +46,4 @@ export async function createGatewayApplication(
 export const gatewayTestDefaults = {
   corsOrigins: CorsDefaults.origins,
   corsPreflightMaxAgeSeconds: CorsDefaults.preflightMaxAgeSeconds,
-  sessionCheckTimeoutMs: 5_000,
 } as const;

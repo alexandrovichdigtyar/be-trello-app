@@ -17,10 +17,6 @@ export const JwtVerificationDefaults = {
   clockToleranceSeconds: 30,
 } as const;
 
-export const GuestOnlyGuardDefaults = {
-  sessionCheckTimeoutMs: 5_000,
-} as const;
-
 export const CorsDefaults = {
   origins: ['http://localhost:3000'],
   preflightMaxAgeSeconds: 600,

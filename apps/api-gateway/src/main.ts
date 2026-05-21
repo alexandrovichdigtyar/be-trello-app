@@ -8,7 +8,6 @@ async function bootstrap() {
   const app = await createGatewayApplication({
     identityUpstreamUrl: env.identityUpstreamUrl,
     boardsUpstreamUrl: env.boardsUpstreamUrl,
-    sessionCheckTimeoutMs: env.sessionCheckTimeoutMs,
     corsOrigins: env.corsOrigins,
     corsPreflightMaxAgeSeconds: env.corsPreflightMaxAgeSeconds,
   });

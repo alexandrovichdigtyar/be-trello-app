@@ -5,15 +5,11 @@ export const ProxyRoutePrefixes = {
   upstreamBoards: '/boards',
 } as const;
 
-export const IdentityUpstreamPaths = {
-  usersMe: '/api/v1/users/me',
-} as const;
-
 export const PUBLIC_EXACT_PATHS: ReadonlySet<string> = new Set(['/health']);
 
 /**
- * POST-only gateway paths where an already-authenticated user should receive
- * 409 ALREADY_AUTHENTICATED instead of being forwarded to identity.
+ * POST-only gateway paths where an already-authenticated user (valid Bearer JWT)
+ * should receive 409 ALREADY_AUTHENTICATED instead of being forwarded.
  */
 export const GUEST_ONLY_PATHS: ReadonlySet<string> = new Set([
   '/api/auth/sign-in/email',

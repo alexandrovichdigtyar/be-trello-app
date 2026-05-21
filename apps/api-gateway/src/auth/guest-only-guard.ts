@@ -1,30 +1,13 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { GUEST_ONLY_PATHS, IdentityUpstreamPaths } from '../proxy/proxy.constants';
+import { GUEST_ONLY_PATHS } from '../proxy/proxy.constants';
+import { verifyTokenWithJwks } from './jwt-verify';
 
-async function hasActiveSession(
-  identityUpstreamUrl: string,
-  cookie: string,
-  timeoutMs: number,
-  log: FastifyRequest['log'],
-): Promise<boolean> {
-  const url = `${identityUpstreamUrl}${IdentityUpstreamPaths.usersMe}`;
-  try {
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: { cookie },
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    return res.ok;
-  } catch (err) {
-    log.warn({ err }, 'guest-only guard: session check failed, failing open');
-    return false;
-  }
-}
-
-export function createGuestOnlyPreHandler(
-  identityUpstreamUrl: string,
-  sessionCheckTimeoutMs: number,
-) {
+/**
+ * Best-effort guard for guest-only auth routes (sign-in/sign-up).
+ * If the client sends a valid Bearer JWT, block with 409.
+ * Otherwise let identity-service handle cookie-based session checks.
+ */
+export function createGuestOnlyPreHandler() {
   return async function guestOnlyPreHandler(
     request: FastifyRequest,
     reply: FastifyReply,
@@ -34,21 +17,18 @@ export function createGuestOnlyPreHandler(
     const path = request.url.split('?')[0] ?? request.url;
     if (!GUEST_ONLY_PATHS.has(path)) return;
 
-    const cookie = request.headers.cookie;
-    if (!cookie) return;
+    const authHeader = request.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return;
 
-    const active = await hasActiveSession(
-      identityUpstreamUrl,
-      Array.isArray(cookie) ? cookie.join('; ') : cookie,
-      sessionCheckTimeoutMs,
-      request.log,
-    );
-
-    if (active) {
+    const token = authHeader.slice('Bearer '.length).trim();
+    try {
+      await verifyTokenWithJwks(token);
       return reply.code(409).send({
         code: 'ALREADY_AUTHENTICATED',
         message: 'You are already signed in. Sign out first.',
       });
+    } catch {
+      // Invalid Bearer — best-effort: let identity-service decide.
     }
   };
 }

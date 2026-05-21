@@ -1,11 +1,7 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { JWTPayload } from 'jose';
-import {
-  IDENTITY_HEADERS,
-  IdentityHeader,
-} from '../proxy/identity-headers';
+import { IdentityHeader, STRIPPED_HEADERS } from '../proxy/identity-headers';
 import { verifyTokenWithJwks } from './jwt-verify';
-import { requiresBearerJwt } from './auth-route-policy';
 
 type TrustedIdentityJwtPayload = JWTPayload & {
   userId?: string;
@@ -27,21 +23,25 @@ function applyTrustedIdentityHeaders(
 }
 
 export function stripIncomingIdentityHeaders(request: FastifyRequest): void {
-  for (const header of IDENTITY_HEADERS) {
+  for (const header of STRIPPED_HEADERS) {
     delete request.headers[header];
   }
 }
 
-export function registerAuthPreHandler(fastify: FastifyInstance): void {
-  fastify.addHook('preHandler', async (request, reply) => {
-    const authHeader = request.headers.authorization;
+export function registerStripUntrustedHeaders(fastify: FastifyInstance): void {
+  fastify.addHook('onRequest', async (request) => {
     stripIncomingIdentityHeaders(request);
+  });
+}
 
-    const path = request.url.split('?')[0] ?? request.url;
-    if (!requiresBearerJwt(path, request.method)) {
-      return;
-    }
+export function createBearerAuthPreHandler() {
+  return async function bearerAuthPreHandler(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<void> {
+    if (request.method === 'OPTIONS') return;
 
+    const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       return reply.code(401).send({ message: 'Unauthorized' });
     }
@@ -50,8 +50,9 @@ export function registerAuthPreHandler(fastify: FastifyInstance): void {
     try {
       const payload = await verifyTokenWithJwks(token);
       applyTrustedIdentityHeaders(request, payload as TrustedIdentityJwtPayload);
+      delete request.headers.authorization;
     } catch {
       return reply.code(401).send({ message: 'Unauthorized' });
     }
-  });
+  };
 }

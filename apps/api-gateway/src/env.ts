@@ -1,7 +1,6 @@
 import {
   DefaultUpstream,
   GatewayListenDefaults,
-  GuestOnlyGuardDefaults,
   IdentityPaths,
   JwtVerificationDefaults,
   CorsDefaults,
@@ -18,7 +17,6 @@ export type GatewayEnv = {
   jwtAudience?: string;
   jwtJwksCacheMaxAgeMs: number;
   jwtClockToleranceSeconds: number;
-  sessionCheckTimeoutMs: number;
   corsOrigins: readonly string[];
   corsPreflightMaxAgeSeconds: number;
 };
@@ -58,9 +56,6 @@ export function loadGatewayEnv(): GatewayEnv {
     jwtClockToleranceSeconds:
       parsePositiveInt(process.env.JWT_CLOCK_TOLERANCE_SECONDS) ??
       JwtVerificationDefaults.clockToleranceSeconds,
-    sessionCheckTimeoutMs:
-      parsePositiveInt(process.env.SESSION_CHECK_TIMEOUT_MS) ??
-      GuestOnlyGuardDefaults.sessionCheckTimeoutMs,
     corsOrigins: parseCorsOrigins(process.env.CORS_ORIGINS),
     corsPreflightMaxAgeSeconds:
       parsePositiveInt(process.env.CORS_PREFLIGHT_MAX_AGE_SECONDS) ??
