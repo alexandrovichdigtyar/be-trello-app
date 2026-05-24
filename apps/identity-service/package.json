@@ -1,0 +1,33 @@
+{
+  "name": "@trello-app/identity-service",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "start:prod": "node dist/main.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "@trello-app/shared": "workspace:*",
+    "@better-auth/prisma-adapter": "^1.6.11",
+    "@hono/node-server": "^2.0.2",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-auth": "^1.6.11",
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.19",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@trello-app/typescript-config": "workspace:*",
+    "@types/node": "^22.19.19",
+    "@types/pg": "^8.20.0",
+    "eslint": "^9.27.0",
+    "prisma": "^7.8.0",
+    "tsx": "^4.19.4",
+    "typescript": "~5.8.3"
+  }
+}

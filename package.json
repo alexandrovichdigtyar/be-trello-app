@@ -1,0 +1,26 @@
+{
+  "name": "trello-app",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --filter=@trello-app/shared --filter=@trello-app/api-gateway --filter=@trello-app/identity-service --filter=@trello-app/boards-service",
+    "dev:identity": "turbo run dev --filter=@trello-app/identity-service",
+    "dev:gateway": "turbo run dev --filter=@trello-app/api-gateway",
+    "dev-gateway": "turbo run dev --filter=@trello-app/api-gateway",
+    "dev:boards": "turbo run dev --filter=@trello-app/boards-service",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,mts,cts,js,mjs,cjs,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,mts,cts,js,mjs,cjs,json,md}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.6",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.32.1"
+  }
+}
