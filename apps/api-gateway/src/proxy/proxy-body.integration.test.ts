@@ -106,6 +106,7 @@ describe('proxy route rewrite', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await closeGatewayTestContext(context);
   });
 
@@ -116,6 +117,23 @@ describe('proxy route rewrite', () => {
     });
 
     expect(context.echo.requests.at(-1)?.path).toBe('/api/v1/auth/token');
+  });
+
+  it('rewrites /api/workspaces prefix to upstream /workspaces', async () => {
+    vi.spyOn(jwtVerify, 'verifyTokenWithJwks').mockResolvedValue({
+      sub: 'user-1',
+      userId: 'user-1',
+    });
+
+    await context.inject({
+      method: 'GET',
+      url: '/api/workspaces/demo',
+      headers: {
+        authorization: 'Bearer valid.jwt.token',
+      },
+    });
+
+    expect(context.echo.requests.at(-1)?.path).toBe('/workspaces/demo');
   });
 });
 
@@ -203,6 +221,16 @@ describe('bearer auth scope', () => {
       headers: {
         authorization: 'Bearer not.a.real.token',
       },
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(context.echo.requests).toHaveLength(0);
+  });
+
+  it('returns 401 on /api/workspaces without Bearer', async () => {
+    const response = await context.inject({
+      method: 'GET',
+      url: '/api/workspaces/demo',
     });
 
     expect(response.statusCode).toBe(401);

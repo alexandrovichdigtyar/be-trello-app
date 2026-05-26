@@ -16,6 +16,7 @@ export async function createGatewayTestContext(): Promise<GatewayTestContext> {
   const app = await createGatewayApplication({
     identityUpstreamUrl: echo.url,
     boardsUpstreamUrl: echo.url,
+    workspaceUpstreamUrl: echo.url,
     ...gatewayTestDefaults,
   });
 

@@ -1,8 +1,10 @@
 export const ProxyRoutePrefixes = {
   gatewayIdentityAuth: '/api/auth',
   gatewayBoards: '/api/boards',
+  gatewayWorkspaces: '/api/workspaces',
   upstreamIdentityAuth: '/api/v1/auth',
   upstreamBoards: '/boards',
+  upstreamWorkspaces: '/workspaces',
 } as const;
 
 export const PUBLIC_EXACT_PATHS: ReadonlySet<string> = new Set(['/health']);
