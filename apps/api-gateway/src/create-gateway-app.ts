@@ -10,6 +10,7 @@ import { registerHttpProxies } from './proxy/proxy.bootstrap';
 export type CreateGatewayAppOptions = {
   identityUpstreamUrl?: string;
   boardsUpstreamUrl?: string;
+  workspaceUpstreamUrl?: string;
   corsOrigins?: readonly string[];
   corsPreflightMaxAgeSeconds?: number;
 };
@@ -37,6 +38,8 @@ export async function createGatewayApplication(
   await registerHttpProxies(fastify, {
     identityUpstreamUrl: options.identityUpstreamUrl ?? env.identityUpstreamUrl,
     boardsUpstreamUrl: options.boardsUpstreamUrl ?? env.boardsUpstreamUrl,
+    workspaceUpstreamUrl:
+      options.workspaceUpstreamUrl ?? env.workspaceUpstreamUrl,
   });
 
   await app.init();

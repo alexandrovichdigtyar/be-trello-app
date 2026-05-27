@@ -1,6 +1,7 @@
 export const DefaultUpstream = {
   identity: 'http://127.0.0.1:4002',
   boards: 'http://127.0.0.1:4001',
+  workspace: 'http://127.0.0.1:4003',
 } as const;
 
 export const IdentityPaths = {

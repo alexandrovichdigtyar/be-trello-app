@@ -12,6 +12,7 @@ export type GatewayEnv = {
   bindAddress: string;
   identityUpstreamUrl: string;
   boardsUpstreamUrl: string;
+  workspaceUpstreamUrl: string;
   jwksUrl: string;
   jwtIssuer?: string;
   jwtAudience?: string;
@@ -38,6 +39,9 @@ export function loadGatewayEnv(): GatewayEnv {
   const boardsBase = trimTrailingSlashes(
     process.env.BOARDS_UPSTREAM_URL ?? DefaultUpstream.boards,
   );
+  const workspaceBase = trimTrailingSlashes(
+    process.env.WORKSPACE_UPSTREAM_URL ?? DefaultUpstream.workspace,
+  );
 
   const jwksUrl =
     process.env.JWKS_URL?.trim() || `${identityBase}${IdentityPaths.jwksPath}`;
@@ -47,6 +51,7 @@ export function loadGatewayEnv(): GatewayEnv {
     bindAddress: process.env.BIND_ADDRESS ?? GatewayListenDefaults.host,
     identityUpstreamUrl: identityBase,
     boardsUpstreamUrl: boardsBase,
+    workspaceUpstreamUrl: workspaceBase,
     jwksUrl,
     jwtIssuer: process.env.JWT_ISSUER?.trim() || undefined,
     jwtAudience: process.env.JWT_AUDIENCE?.trim() || undefined,

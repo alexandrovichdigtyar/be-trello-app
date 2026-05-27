@@ -7,6 +7,7 @@ import { ProxyRoutePrefixes } from './proxy.constants';
 export type ProxyRegistrationDeps = {
   identityUpstreamUrl: string;
   boardsUpstreamUrl: string;
+  workspaceUpstreamUrl: string;
 };
 
 export async function registerHttpProxies(
@@ -25,6 +26,14 @@ export async function registerHttpProxies(
     upstream: deps.boardsUpstreamUrl,
     prefix: ProxyRoutePrefixes.gatewayBoards,
     rewritePrefix: ProxyRoutePrefixes.upstreamBoards,
+    http2: false,
+    preHandler: createBearerAuthPreHandler(),
+  });
+
+  await fastify.register(fastifyHttpProxy, {
+    upstream: deps.workspaceUpstreamUrl,
+    prefix: ProxyRoutePrefixes.gatewayWorkspaces,
+    rewritePrefix: ProxyRoutePrefixes.upstreamWorkspaces,
     http2: false,
     preHandler: createBearerAuthPreHandler(),
   });
