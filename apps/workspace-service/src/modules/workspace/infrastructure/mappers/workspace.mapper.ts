@@ -1,10 +1,9 @@
 import { WorkspaceModel as WorkspaceEntity } from '../../../../generated/prisma/models';
-import { WorkspaceAggregate } from '../../domain/aggregates/workspace.aggregate';
-import { WorkspaceModel } from '../../domain/models/workspace.model';
+import { Workspace } from '../../domain/workspace';
 
 export class WorkspaceMapper {
-  static toDomain(entity: WorkspaceEntity): WorkspaceAggregate {
-    const model = WorkspaceModel.reconstitute({
+  static toDomain(entity: WorkspaceEntity): Workspace {
+    return Workspace.reconstitute({
       id: entity.id,
       name: entity.name,
       description: entity.description,
@@ -12,18 +11,16 @@ export class WorkspaceMapper {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     });
-
-    return WorkspaceAggregate.reconstitute(model);
   }
 
-  static toEntity(aggregate: WorkspaceAggregate): WorkspaceEntity {
+  static toEntity(workspace: Workspace): WorkspaceEntity {
     return {
-      id: aggregate.model.id,
-      name: aggregate.model.name,
-      description: aggregate.model.description ?? null,
-      ownerId: aggregate.model.ownerId,
-      createdAt: aggregate.model.createdAt,
-      updatedAt: aggregate.model.updatedAt,
+      id: workspace.id,
+      name: workspace.name,
+      description: workspace.description ?? null,
+      ownerId: workspace.ownerId,
+      createdAt: workspace.createdAt,
+      updatedAt: workspace.updatedAt,
     };
   }
 }

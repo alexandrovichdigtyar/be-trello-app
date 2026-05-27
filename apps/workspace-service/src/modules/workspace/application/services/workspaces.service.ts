@@ -1,44 +1,43 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IWorkspaceRepository, WORKSPACE_REPOSITORY } from '../../domain/repositories/workspace.repository.interface';
-import { CreateWorkspaceRequestDto } from '../dto/requests/create-workspace.request.dto';
-import { WorkspaceResponseDto } from '../dto/responses/workspace.response.dto';
-import { WorkspaceAggregate } from '../../domain/aggregates/workspace.aggregate';
+import { Workspace } from '../../domain/workspace';
+import { CreateWorkspaceDto } from '../../presentation/http/dto/create-workspace.dto';
+import { WorkspaceResponseDto } from '../../presentation/http/dto/workspace.response.dto';
 
 @Injectable()
 export class WorkspacesService {
-    constructor(
-        @Inject(WORKSPACE_REPOSITORY)
-        private readonly workspaceRepository: IWorkspaceRepository) { }
+  constructor(
+    @Inject(WORKSPACE_REPOSITORY)
+    private readonly workspaceRepository: IWorkspaceRepository,
+  ) {}
 
-    async createWorkspace(dto: CreateWorkspaceRequestDto): Promise<WorkspaceResponseDto> {
-        const aggregate = WorkspaceAggregate.create({
-            id: crypto.randomUUID(),
-            name: dto.name,
-            description: dto.description,
-            ownerId: dto.ownerId,
-        });
-        await this.workspaceRepository.save(aggregate);
+  async createWorkspace(dto: CreateWorkspaceDto): Promise<WorkspaceResponseDto> {
+    const workspace = Workspace.create({
+      name: dto.name,
+      description: dto.description,
+      ownerId: dto.ownerId,
+    });
 
-        return {
-            id: aggregate.model.id,
-            name: aggregate.model.name,
-            description: aggregate.model.description,
-            ownerId: aggregate.model.ownerId,
-            createdAt: aggregate.model.createdAt,
-            updatedAt: aggregate.model.updatedAt,
-        };
-    }
+    await this.workspaceRepository.save(workspace);
 
-    async findWorkspaceById(id: string): Promise<WorkspaceResponseDto | null> {
-        const aggregate = await this.workspaceRepository.findById(id);
-        if (!aggregate) return null;
-        return {
-            id: aggregate.model.id,
-            name: aggregate.model.name,
-            description: aggregate.model.description,
-            ownerId: aggregate.model.ownerId,
-            createdAt: aggregate.model.createdAt,
-            updatedAt: aggregate.model.updatedAt,
-        };
-    }
+    return this.toDto(workspace);
+  }
+
+  async findWorkspaceById(id: string): Promise<WorkspaceResponseDto | null> {
+    const workspace = await this.workspaceRepository.findById(id);
+    
+    if (!workspace) return null;
+    return this.toDto(workspace);
+  }
+
+  private toDto(workspace: Workspace): WorkspaceResponseDto {
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      description: workspace.description,
+      ownerId: workspace.ownerId,
+      createdAt: workspace.createdAt,
+      updatedAt: workspace.updatedAt,
+    };
+  }
 }

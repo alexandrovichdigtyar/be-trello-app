@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { WorkspaceController } from './workspace.controller';
+import { WorkspaceController } from './presentation/http/workspace.controller';
 import { WorkspacesService } from './application/services/workspaces.service';
 import { WORKSPACE_REPOSITORY } from './domain/repositories/workspace.repository.interface';
 import { WorkspacePrismaRepository } from './infrastructure/repositories/workspace.prisma.repository';

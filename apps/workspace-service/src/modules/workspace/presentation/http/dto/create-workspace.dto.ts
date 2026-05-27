@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateWorkspaceRequestDto {
+export class CreateWorkspaceDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
