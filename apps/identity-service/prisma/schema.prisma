@@ -24,6 +24,7 @@ model User {
   accounts      Account[]
   members       Member[]
   invitations   Invitation[]
+  teamMembers   TeamMember[]
 
   @@unique([email])
   @@map("user")
@@ -40,6 +41,7 @@ model Session {
   userId               String
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   activeOrganizationId String?
+  activeTeamId         String?
 
   @@unique([token])
   @@index([userId])
@@ -87,6 +89,7 @@ model Organization {
   metadata    String?
   members     Member[]
   invitations Invitation[]
+  teams       Team[]
 
   @@unique([slug])
   @@map("organization")
@@ -131,4 +134,31 @@ model Jwks {
   expiresAt  DateTime?
 
   @@map("jwks")
+}
+
+model Team {
+  id             String       @id
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime
+  updatedAt      DateTime?
+  members        TeamMember[]
+
+  @@index([organizationId])
+  @@map("team")
+}
+
+model TeamMember {
+  id        String   @id
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String?
+  createdAt DateTime
+
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_member")
 }

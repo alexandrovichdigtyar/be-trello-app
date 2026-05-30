@@ -7,11 +7,15 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { jwt } from 'better-auth/plugins';
 import { getAuthBaseUrl } from '../config/api';
 import { createDefineJwtPayload } from './define-jwt-payload';
+import { TeamEvents } from '../events/team-events';
+import { TeamMemberEvents } from '../events/team-members-event';
 
 const statement = {
   project: ['create', 'share', 'update', 'delete'],
   sale: ['create', 'read', 'update', 'delete'],
   organization: ['update', 'delete'],
+  team: ['create', 'update', 'delete'],
+  member: ['create', 'update', 'delete'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -23,6 +27,15 @@ const editor = ac.newRole({
 const admin = ac.newRole({
   project: ['create', 'update', 'delete'],
   organization: ['update'],
+  team: ['create', 'update', 'delete'],
+});
+
+const owner = ac.newRole({
+  project: ['create', 'share', 'update', 'delete'],
+  sale: ['create', 'read', 'update', 'delete'],
+  organization: ['update', 'delete'],
+  team: ['create', 'update', 'delete'],
+  member: ['create', 'update', 'delete'],
 });
 
 const prisma = new PrismaClient({
@@ -33,7 +46,7 @@ export const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(',')
   .map((o) => o.trim())
   .filter(Boolean) ?? ['http://localhost:4002'];
 
-export const roles = { editor, admin };
+export const roles = { editor, admin, owner };
 export type RoleName = keyof typeof roles;
 
 function isConfiguredRole(name: string): name is RoleName {
@@ -81,7 +94,32 @@ export const auth = betterAuth({
       roles: {
         editor,
         admin,
+        owner,
       },
+      organizationHooks: {
+        afterCreateTeam: async ({ team }) => {
+          await TeamEvents.created(team);
+        },
+        afterDeleteTeam: async ({ team }) => {
+          await TeamEvents.deleted(team);
+        },
+        afterUpdateTeam: async ({ team }) => {
+          await TeamEvents.updated(team!);
+        },
+        afterAddTeamMember: async ({ team, teamMember }) => {
+          await TeamMemberEvents.added(team, teamMember);
+        },
+        afterRemoveTeamMember: async ({ team, teamMember }) => {
+          await TeamMemberEvents.removed(team, teamMember);
+        },
+      },
+      teams: {
+        enabled: true,
+        defaultTeam: {
+          enabled: true,
+        },
+        
+      }
     }),
     jwt({
         jwt: {

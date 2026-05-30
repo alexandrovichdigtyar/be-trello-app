@@ -8,6 +8,7 @@ import {
   DEFAULT_PORT,
   HTTP_STATUS_UNAUTHORIZED,
 } from './config/defaults';
+import { kafkaProducer } from './kafka.producer';
 
 const app = new Hono();
 
@@ -26,9 +27,23 @@ app.get('/health', (c) => c.json({ ok: true }));
 const port = Number(process.env.PORT) || DEFAULT_PORT;
 const hostname = process.env.BIND_ADDRESS ?? DEFAULT_BIND_ADDRESS;
 
-serve(
-  { fetch: app.fetch, port, hostname },
-  (info) => {
-    console.log(`Listening on http://${hostname}:${info.port}`);
-  },
-);
+process.on('SIGINT', async () => {
+  await kafkaProducer.disconnect();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await kafkaProducer.disconnect();
+  process.exit(0);
+});
+
+const bootstrap = async () => {
+  serve(
+    { fetch: app.fetch, port, hostname },
+    (info) => {
+      console.log(`Listening on http://${hostname}:${info.port}`);
+    },
+  );
+};
+
+bootstrap();

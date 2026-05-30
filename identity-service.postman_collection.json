@@ -1,0 +1,282 @@
+{
+  "info": {
+    "name": "Identity Service",
+    "_postman_id": "identity-service-collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4002/api/v1/auth"
+    },
+    {
+      "key": "org_id",
+      "value": ""
+    },
+    {
+      "key": "team_id",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/sign-up/email" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Test User\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.user) pm.collectionVariables.set('user_id', json.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign In",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/sign-in/email" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.user) pm.collectionVariables.set('user_id', json.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/get-session" }
+          }
+        },
+        {
+          "name": "Sign Out",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/sign-out" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organization",
+      "item": [
+        {
+          "name": "Create Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/create" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Workspace\",\n  \"slug\": \"my-workspace\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('org_id', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set Active Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/set-active" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{org_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Full Organization",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/organization/get-full-organization?organizationId={{org_id}}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "Create Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/create-team" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dev Team\",\n  \"organizationId\": \"{{org_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('team_id', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/update-team" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamId\": \"{{team_id}}\",\n  \"data\": {\n    \"name\": \"Dev Team Updated\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "List Teams",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/organization/list-teams?organizationId={{org_id}}"
+            }
+          }
+        },
+        {
+          "name": "Remove Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/remove-team" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamId\": \"{{team_id}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team Members",
+      "item": [
+        {
+          "name": "Add Team Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/add-team-member" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamId\": \"{{team_id}}\",\n  \"userId\": \"{{user_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Team Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": { "raw": "{{base_url}}/organization/remove-team-member" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamId\": \"{{team_id}}\",\n  \"userId\": \"{{user_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Team Members",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Origin", "value": "http://localhost:4002" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/organization/list-team-members?teamId={{team_id}}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
