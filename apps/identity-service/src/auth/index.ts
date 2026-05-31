@@ -104,7 +104,8 @@ export const auth = betterAuth({
           await TeamEvents.deleted(team);
         },
         afterUpdateTeam: async ({ team }) => {
-          await TeamEvents.updated(team!);
+          if (!team) return;
+          await TeamEvents.updated(team);
         },
         afterAddTeamMember: async ({ team, teamMember }) => {
           await TeamMemberEvents.added(team, teamMember);

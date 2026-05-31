@@ -38,6 +38,8 @@ process.on('SIGTERM', async () => {
 });
 
 const bootstrap = async () => {
+  await kafkaProducer.connect();
+  
   serve(
     { fetch: app.fetch, port, hostname },
     (info) => {

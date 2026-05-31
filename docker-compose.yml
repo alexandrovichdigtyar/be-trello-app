@@ -29,6 +29,3 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
     depends_on:
       - kafka
-
-volumes:
-  kafka-ui-data:
