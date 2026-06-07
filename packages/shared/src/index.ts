@@ -12,3 +12,5 @@ export type IdentityClaims = {
   perms: string[];
 };
 
+export * from './libs/kafka';
+
