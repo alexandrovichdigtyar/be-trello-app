@@ -7,8 +7,9 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { jwt } from 'better-auth/plugins';
 import { getAuthBaseUrl } from '../config/api';
 import { createDefineJwtPayload } from './define-jwt-payload';
-import { TeamEvents } from '../events/team-events';
-import { TeamMemberEvents } from '../events/team-members-event';
+import { teamEventsPublisher } from '../events/team-events-publisher';
+import { teamMemberEventsPublisher } from '../events/team-member-events-publisher';
+import { TOPICS } from '../events/topics';
 
 const statement = {
   project: ['create', 'share', 'update', 'delete'],
@@ -98,20 +99,40 @@ export const auth = betterAuth({
       },
       organizationHooks: {
         afterCreateTeam: async ({ team }) => {
-          await TeamEvents.created(team);
+          await teamEventsPublisher.publish(TOPICS.TEAM_CREATED, team.id, {
+            teamId: team.id,
+            name: team.name,
+            producedAt: new Date().toISOString(),
+          });
         },
         afterDeleteTeam: async ({ team }) => {
-          await TeamEvents.deleted(team);
+          await teamEventsPublisher.publish(TOPICS.TEAM_DELETED, team.id, {
+            teamId: team.id,
+            name: team.name,
+            producedAt: new Date().toISOString(),
+          });
         },
         afterUpdateTeam: async ({ team }) => {
           if (!team) return;
-          await TeamEvents.updated(team);
+          await teamEventsPublisher.publish(TOPICS.TEAM_UPDATED, team.id, {
+            teamId: team.id,
+            name: team.name,
+            producedAt: new Date().toISOString(),
+          });
         },
         afterAddTeamMember: async ({ team, teamMember }) => {
-          await TeamMemberEvents.added(team, teamMember);
+          await teamMemberEventsPublisher.publish(TOPICS.TEAM_MEMBER_ADDED, team.id, {
+            teamId: team.id,
+            userId: teamMember.userId,
+            producedAt: new Date().toISOString(),
+          });
         },
         afterRemoveTeamMember: async ({ team, teamMember }) => {
-          await TeamMemberEvents.removed(team, teamMember);
+          await teamMemberEventsPublisher.publish(TOPICS.TEAM_MEMBER_REMOVED, team.id, {
+            teamId: team.id,
+            userId: teamMember.userId,
+            producedAt: new Date().toISOString(),
+          });
         },
       },
       teams: {

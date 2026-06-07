@@ -175,6 +175,10 @@ importers:
         version: 5.8.3
 
   packages/shared:
+    dependencies:
+      kafkajs:
+        specifier: ^2.2.4
+        version: 2.2.4
     devDependencies:
       '@trello-app/typescript-config':
         specifier: workspace:*

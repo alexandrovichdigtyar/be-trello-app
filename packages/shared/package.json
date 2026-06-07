@@ -17,8 +17,11 @@
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },
   "devDependencies": {
-    "eslint": "^9.27.0",
     "@trello-app/typescript-config": "workspace:*",
+    "eslint": "^9.27.0",
     "typescript": "~5.8.3"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4"
   }
 }
